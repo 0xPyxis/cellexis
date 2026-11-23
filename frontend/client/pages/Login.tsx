@@ -3,19 +3,30 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { auth, googleProvider } from '@/lib/firebase';
 import { signInWithPopup } from 'firebase/auth';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from "react-router-dom";
 import LiquidEther from "@/components/ui/liquid-ether";
 
 export default function Login() {
   const [username, setUsername] = useState("");
+  const { signInAsGuest } = useAuth();
+  const navigate = useNavigate();
+
   const signInWithGoogle = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       console.log("User signed in:", user);
+      navigate("/dashboard");
     } catch (error) {
-      console.error("Error signing in:", error);
+      console.error("Error signing in with Google:", error);
     }
-  }
+  };
+
+  const handleGuestSignIn = () => {
+    signInAsGuest();
+    navigate("/dashboard");
+  };
 
   return (
     <div className="relative h-screen w-full">
@@ -45,17 +56,24 @@ export default function Login() {
               Welcome to Cellexis
             </h1>
             <p className="mt-2 text-sm text-foreground/70">
-              Sign in to continue
+              NASA Bioscience AI Research Platform
             </p>
           </div>
           <div className="grid gap-4">
-            <Input
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
             <Button
-              className="w-full h-11 rounded-[10px] bg-gradient-to-r from-primary via-accent to-secondary text-black font-semibold"
+              className="w-full h-11 rounded-[10px] bg-gradient-to-r from-primary via-accent to-secondary text-black font-semibold shadow-lg hover:opacity-95 transition"
+              onClick={handleGuestSignIn}
+            >
+              Explore as Guest Researcher
+            </Button>
+            <div className="relative flex py-1 items-center">
+              <div className="flex-grow border-t border-border/40"></div>
+              <span className="flex-shrink mx-4 text-xs text-foreground/50 uppercase tracking-widest">or</span>
+              <div className="flex-grow border-t border-border/40"></div>
+            </div>
+            <Button
+              variant="outline"
+              className="w-full h-11 rounded-[10px] border-primary/30 hover:bg-primary/10 text-foreground font-medium"
               onClick={signInWithGoogle}
             >
               Sign in with Google
